@@ -15,11 +15,15 @@ def helpMessage() {
     nextflow run main.nf --input "path/to/videos/*" --outdir results
 
     Required arguments:
-      --input         Path to input video files (glob pattern)
-      --outdir        Output directory (default: results)
+      --input                   Path to input video files (glob pattern)
+      --outdir                  Output directory (default: results)
+
+    WhisperX options:
+      --whisperx_compute_type   Compute type for WhisperX (default: float32)
+      --whisperx_model          WhisperX model to use (default: turbo)
 
     Optional arguments:
-      --help          Show this help message
+      --help                    Show this help message
     """.stripIndent()
     )
 }
@@ -27,6 +31,7 @@ def helpMessage() {
 
 // Include processes
 include { VIDEO_TO_MP3 } from './modules/ffmpeg.nf'
+include { WHISPERX } from './modules/whisperx.nf'
 
 workflow {
     // Show help message if requested
@@ -52,6 +57,9 @@ workflow {
 
     // Convert videos to MP3
     VIDEO_TO_MP3(video_files)
+    
+    // Transcribe MP3 files using WhisperX
+    WHISPERX(VIDEO_TO_MP3.out.mp3)
 }
 
 
