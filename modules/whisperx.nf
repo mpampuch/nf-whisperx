@@ -25,27 +25,22 @@ process WHISPERX {
     whisperx \\
         --compute_type ${compute_type} \\
         --model "${model}" \\
-        --output_format json \\
-        --output_format txt \\
-        --output_format srt \\
-        --output_format vtt \\
-        --output_dir . \\
         ${args} \\
         ${mp3_file}
 
     # Rename output files to include sample ID
-    if [ -f "${basename}.json" ]; then
-        mv ${basename}.json ${meta.id}.json
-    fi
-    if [ -f "${basename}.txt" ]; then
-        mv ${basename}.txt ${meta.id}.txt
-    fi
-    if [ -f "${basename}.srt" ]; then
-        mv ${basename}.srt ${meta.id}.srt
-    fi
-    if [ -f "${basename}.vtt" ]; then
-        mv ${basename}.vtt ${meta.id}.vtt
-    fi
+    # if [ -f "${basename}.json" ]; then
+    #     mv ${basename}.json ${meta.id}.json
+    # fi
+    # if [ -f "${basename}.txt" ]; then
+    #     mv ${basename}.txt ${meta.id}.txt
+    # fi
+    # if [ -f "${basename}.srt" ]; then
+    #     mv ${basename}.srt ${meta.id}.srt
+    # fi
+    # if [ -f "${basename}.vtt" ]; then
+    #     mv ${basename}.vtt ${meta.id}.vtt
+    # fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
