@@ -43,3 +43,18 @@ temp
 plugins-prod
 sandbox
 wave-tests
+
+# Ignore media files
+*.mp4
+*.avi
+*.mkv
+*.ts
+*.flv
+*.mov
+*.webm
+*.mp3
+*.wav
+*.gif
+
+# macOS specific files
+.DS_Store
