@@ -52,11 +52,11 @@ workflow {
 
     // Convert videos to MP3
     VIDEO_TO_MP3(video_files)
+}
 
 
-    workflow.onComplete {
-        log.info("Pipeline completed at: ${workflow.complete}")
-        log.info("Execution status: ${workflow.success ? 'OK' : 'failed'}")
-        log.info("Results saved to: ${params.outdir}")
-    }
+workflow.onComplete {
+    log.info("Pipeline completed at: ${workflow.complete}")
+    log.info("Execution status: ${workflow.success ? 'OK' : 'failed'}")
+    log.info("Results saved to: ${params.outdir}")
 }
