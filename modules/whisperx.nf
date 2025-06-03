@@ -1,7 +1,7 @@
 process WHISPERX {
     tag "${meta.id}"
     label 'process_high'
-    publishDir "${params.outdir}/transcripts", mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
 
     input:
     tuple val(meta), path(mp3_file)
@@ -25,6 +25,7 @@ process WHISPERX {
     whisperx \\
         --compute_type ${compute_type} \\
         --model "${model}" \\
+        --threads ${task.cpus} \\
         ${args} \\
         ${mp3_file}
 
