@@ -1,0 +1,95 @@
+nextflow_process {
+    name "Test VIDEO_TO_MP3 process"
+    script "./main.nf"
+    process "VIDEO_TO_MP3"
+
+    test("Should convert video to mp3") {
+        when {
+            process {
+                """
+                input[0] = tuple(
+                    [ id:'test_video' ],
+                    file("${projectDir}/test_data/test_video.mp4")
+                )
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.out.mp3.size() == 1
+            assert process.out.versions.size() == 1
+            
+            with(process.out.mp3.get(0)) {
+                assert size() == 2
+                assert get(0) == [id:'test_video']
+                assert path(get(1)).name == "test_video.mp3"
+            }
+            
+            with(process.out.versions.get(0)) {
+                assert path(it).readLines().any { line -> 
+                    line.contains("VIDEO_TO_MP3") && line.contains("ffmpeg")
+                }
+            }
+        }
+    }
+
+    test("Should run with custom arguments") {
+        when {
+            process {
+                """
+                input[0] = tuple(
+                    [ id:'test_video2' ],
+                    file("${projectDir}/test_data/test_video.mp4")
+                )
+                """
+            }
+            ext.args = '-ab 192k'
+        }
+
+        then {
+            assert process.success
+            assert process.out.mp3.size() == 1
+            
+            with(process.out.mp3.get(0)) {
+                assert size() == 2
+                assert get(0) == [id:'test_video2']
+                assert path(get(1)).name == "test_video2.mp3"
+            }
+        }
+    }
+
+    test("Should create stub files when run in stub mode") {
+        when {
+            process {
+                """
+                input[0] = tuple(
+                    [ id:'test_stub' ],
+                    file("${projectDir}/test_data/test_video.mp4")
+                )
+                """
+            }
+        }
+
+        options "-stub"
+
+        then {
+            assert process.success
+            assert process.out.mp3.size() == 1
+            assert process.out.versions.size() == 1
+            
+            with(process.out.mp3.get(0)) {
+                assert size() == 2
+                assert get(0) == [id:'test_stub']
+                assert path(get(1)).name == "test_stub.mp3"
+                assert path(get(1)).exists()
+            }
+            
+            with(process.out.versions.get(0)) {
+                assert path(it).readLines().any { line -> 
+                    line.contains("VIDEO_TO_MP3") && line.contains("7.1.1")
+                }
+            }
+        }
+    }
+}

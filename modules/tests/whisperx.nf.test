@@ -1,0 +1,92 @@
+nextflow_process {
+    name "Test WHISPERX process"
+    script "./main.nf"
+    process "WHISPERX"
+
+    test("Should run without failures") {
+        when {
+            params {
+                outdir = "output"
+                whisperx_compute_type = "float32"
+                whisperx_model = "turbo"
+            }
+            process {
+                """
+                input[0] = tuple(
+                    [ id:'test_sample', single_end:true ], 
+                    file("${projectDir}/test_data/test_audio.mp3")
+                )
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.trace.tasks().size() == 1
+            
+            with(process.out.transcript) {
+                assert size() == 1
+                assert get(0)[0].id == "test_sample"
+                assert path(get(0)[1]).name == "test_sample.json"
+            }
+            
+            with(process.out.text) {
+                assert size() == 1
+                assert get(0)[0].id == "test_sample"
+                assert path(get(0)[1]).name == "test_sample.txt"
+            }
+            
+            with(process.out.srt) {
+                assert size() == 1
+                assert get(0)[0].id == "test_sample"
+                assert path(get(0)[1]).name == "test_sample.srt"
+            }
+            
+            with(process.out.vtt) {
+                assert size() == 1
+                assert get(0)[0].id == "test_sample"
+                assert path(get(0)[1]).name == "test_sample.vtt"
+            }
+            
+            with(process.out.versions) {
+                assert path(get(0)).text.contains("whisperx")
+                assert path(get(0)).text.contains("python")
+            }
+        }
+    }
+
+    test("Should run with stub") {
+        when {
+            params {
+                outdir = "output"
+                whisperx_compute_type = "float32"
+                whisperx_model = "turbo"
+            }
+            process {
+                """
+                input[0] = tuple(
+                    [ id:'test_stub', single_end:true ], 
+                    file("${projectDir}/test_data/test_audio.mp3")
+                )
+                """
+            }
+        }
+
+        then {
+            assert process.success
+            assert process.trace.tasks().size() == 1
+            
+            with(process.out.transcript) {
+                assert size() == 1
+                assert get(0)[0].id == "test_stub"
+                assert path(get(0)[1]).name == "test_stub.json"
+                assert path(get(0)[1]).empty
+            }
+            
+            with(process.out.versions) {
+                assert path(get(0)).text.contains("whisperx: 3.1.1")
+                assert path(get(0)).text.contains("python: 3.8.0")
+            }
+        }
+    }
+}}
