@@ -23,9 +23,9 @@ def helpMessage() {
       --outdir                  Output directory (default: results)
 
     Samplesheet format:
-      sample_id,video_path
-      sample1,/path/to/video1.mp4
-      sample2,/path/to/video2.avi
+      video_path
+      /path/to/video1.mp4
+      /path/to/video2.avi
 
     WhisperX options:
       --whisperx_compute_type   Compute type for WhisperX (default: float32)
@@ -42,10 +42,10 @@ def parseSamplesheet(samplesheet_file) {
     def samplesheet_channel = Channel.fromPath(samplesheet_file, checkIfExists: true)
         .splitCsv(header: true, sep: ',')
         .map { row ->
-            def meta = [:]
-            meta.id = row.sample_id
-            meta.single_end = true
             def video_file = file(row.video_path, checkIfExists: true)
+            def meta = [:]
+            meta.id = video_file.baseName
+            meta.single_end = true
             [meta, video_file]
         }
     return samplesheet_channel
@@ -93,8 +93,15 @@ workflow {
     // Convert videos to MP3
     VIDEO_TO_MP3(video_files)
     
+    // Combine MP3 output with original video files for WHISPERX
+    whisperx_input = VIDEO_TO_MP3.out.mp3
+        .join(video_files, by: 0)
+        .map { meta, mp3_file, original_video ->
+            [meta, mp3_file, original_video]
+        }
+    
     // Transcribe MP3 files using WhisperX
-    WHISPERX(VIDEO_TO_MP3.out.mp3)
+    WHISPERX(whisperx_input)
 }
 
 

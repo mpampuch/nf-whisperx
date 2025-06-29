@@ -1,7 +1,6 @@
 process VIDEO_TO_MP3 {
     tag "${meta.id}"
     label 'process_medium'
-    publishDir "${params.outdir}", mode: 'copy'
 
     input:
     tuple val(meta), path(input_file)

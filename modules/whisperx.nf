@@ -1,16 +1,17 @@
 process WHISPERX {
     tag "${meta.id}"
     label 'process_high'
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}_TRANSCRIPTS", mode: 'copy'
 
     input:
-    tuple val(meta), path(mp3_file)
+    tuple val(meta), path(mp3_file), path(original_video)
 
     output:
     tuple val(meta), path("${meta.id}.json"), emit: transcript
     tuple val(meta), path("${meta.id}.txt"), emit: text
     tuple val(meta), path("${meta.id}.srt"), emit: srt
     tuple val(meta), path("${meta.id}.vtt"), emit: vtt
+    tuple val(meta), path("${meta.id}.tsv"), emit: tsv
     path "versions.yml", emit: versions
 
     when:
@@ -42,6 +43,9 @@ process WHISPERX {
     if [ -f "${basename}.vtt" ] && [ "${basename}" != "${meta.id}" ]; then
         mv ${basename}.vtt ${meta.id}.vtt
     fi
+    if [ -f "${basename}.tsv" ] && [ "${basename}" != "${meta.id}" ]; then
+        mv ${basename}.tsv ${meta.id}.tsv
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -56,6 +60,7 @@ process WHISPERX {
     touch ${meta.id}.txt
     touch ${meta.id}.srt
     touch ${meta.id}.vtt
+    touch ${meta.id}.tsv
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         whisperx: "3.1.1"
