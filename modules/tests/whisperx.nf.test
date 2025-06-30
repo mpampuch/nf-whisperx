@@ -47,6 +47,18 @@ nextflow_process {
                 assert get(0)[0].id == "test_sample"
                 assert path(get(0)[1]).name == "test_sample.vtt"
             }
+
+            with(process.out.tsv) {
+                assert size() == 1
+                assert get(0)[0].id == "test_sample"
+                assert path(get(0)[1]).name == "test_sample.tsv"
+            }
+
+            with(process.out.markdown) {
+                assert size() == 1
+                assert get(0)[0].id == "test_sample"
+                assert path(get(0)[1]).name == "test_sample.md"
+            }
             
             with(process.out.versions) {
                 assert path(get(0)).text.contains("whisperx")

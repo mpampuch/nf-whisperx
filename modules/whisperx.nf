@@ -12,6 +12,8 @@ process WHISPERX {
     tuple val(meta), path("${meta.id}.srt"), emit: srt
     tuple val(meta), path("${meta.id}.vtt"), emit: vtt
     tuple val(meta), path("${meta.id}.tsv"), emit: tsv
+    tuple val(meta), path("${meta.id}.md"), emit: markdown
+
     path "versions.yml", emit: versions
 
     when:
@@ -36,6 +38,9 @@ process WHISPERX {
     fi
     if [ -f "${basename}.txt" ] && [ "${basename}" != "${meta.id}" ]; then
         mv ${basename}.txt ${meta.id}.txt
+    fi
+    if [ -f "${basename}.txt" ]; then
+        cp ${basename}.txt ${meta.id}.md
     fi
     if [ -f "${basename}.srt" ] && [ "${basename}" != "${meta.id}" ]; then
         mv ${basename}.srt ${meta.id}.srt

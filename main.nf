@@ -110,3 +110,4 @@ workflow.onComplete {
     log.info("Execution status: ${workflow.success ? 'OK' : 'failed'}")
     log.info("Results saved to: ${params.outdir}")
 }
+
